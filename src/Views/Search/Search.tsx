@@ -10,7 +10,7 @@ function Search() {
                 padding: 16,
             }}>
             <Image
-                style={{width: 'auto', height: 120}}
+                style={{width: 'auto', height: 120, marginBottom: 32}}
                 source={require('../../../assets/images/githubLogo.png')}
             />
             <SearchInput />
