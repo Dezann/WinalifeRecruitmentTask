@@ -25,19 +25,21 @@ export default function SearchInput() {
                 `https://api.github.com/users/${username}/repos`,
             );
             const data = await response.json();
-            const parsedData = data.map((repo: any) => {
-                return {
-                    id: repo.id,
-                    name: repo.name.split('-').join(' '),
-                    url: repo.html_url,
-                    updatedAt: repo.updated_at,
-                    forks: repo.forks,
-                    stars: repo.stargazers_count,
-                    watchers: repo.watchers
-                };
-            });
+            if(data){
+                const parsedData = data.map((repo: any) => {
+                    return {
+                        id: repo.id,
+                        name: repo.name.split('-').join(' '),
+                        url: repo.html_url,
+                        updatedAt: repo.updated_at,
+                        forks: repo.forks,
+                        stars: repo.stargazers_count,
+                        watchers: repo.watchers
+                    };
+                });
+                setRepositories(parsedData);
+            }
             setLoading(false)
-            setRepositories(parsedData);
         } catch (error) {
             setLoading(false)
             console.error(error);
@@ -51,7 +53,7 @@ export default function SearchInput() {
                 label="Username"
                 value={username}
                 mode="outlined"
-                onChangeText={value => setUsername(value)}
+                onChangeText={value => setUsername(value.split(' ').join(''))}
             />
             <Button
                 style={{width: 160, marginTop: 8, alignSelf: 'center', marginBottom: 32}}
@@ -62,8 +64,8 @@ export default function SearchInput() {
             </Button>
             <ScrollView>
             {loading ? <ActivityIndicator animating={true} color={'blue'} /> :
-            repositories.map(repo => 
-                <RepositoryBar key={repo.id} repository={repo} />)
+            !!repositories.length ? repositories.map(repo => 
+                <RepositoryBar key={repo.id} repository={repo} />) : <Text variant="titleMedium">No repositories found</Text>
             }
             </ScrollView>
         </View>
