@@ -17,15 +17,17 @@ export default function SearchInput() {
     const [username, setUsername] = useState<string>('');
     const [repositories, setRepositories] = useState<IGithubRepository[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
+    const [dataLoaded, setDataLoaded] = useState<boolean>(false);
 
     const getGithubRepositories = async () => {
-        setLoading(true)
+        setLoading(true);
         try {
             const response = await fetch(
                 `https://api.github.com/users/${username}/repos`,
             );
             const data = await response.json();
-            if(data){
+            console.log(data)
+            if (data.message !== "Not Found") {
                 const parsedData = data.map((repo: any) => {
                     return {
                         id: repo.id,
@@ -34,14 +36,16 @@ export default function SearchInput() {
                         updatedAt: repo.updated_at,
                         forks: repo.forks,
                         stars: repo.stargazers_count,
-                        watchers: repo.watchers
+                        watchers: repo.watchers,
                     };
                 });
                 setRepositories(parsedData);
             }
-            setLoading(false)
+            setDataLoaded(true)
+            setLoading(false);
         } catch (error) {
-            setLoading(false)
+            setLoading(false);
+            setDataLoaded(true)
             console.error(error);
         }
     };
@@ -56,17 +60,27 @@ export default function SearchInput() {
                 onChangeText={value => setUsername(value.split(' ').join(''))}
             />
             <Button
-                style={{width: 160, marginTop: 8, alignSelf: 'center', marginBottom: 32}}
+                style={{
+                    width: 160,
+                    marginTop: 8,
+                    alignSelf: 'center',
+                    marginBottom: 32,
+                }}
                 mode="outlined"
                 disabled={!username}
                 onPress={getGithubRepositories}>
                 Search
             </Button>
             <ScrollView>
-            {loading ? <ActivityIndicator animating={true} color={'blue'} /> :
-            !!repositories.length ? repositories.map(repo => 
-                <RepositoryBar key={repo.id} repository={repo} />) : <Text variant="titleMedium">No repositories found</Text>
-            }
+                {loading ? (
+                    <ActivityIndicator animating={true} color={'blue'} />
+                ) : !!repositories.length ? (
+                    repositories.map(repo => (
+                        <RepositoryBar key={repo.id} repository={repo} />
+                    ))
+                ) : (
+                    <Text variant="titleMedium" style={{opacity: dataLoaded ? 1 : 0}}>No repositories found</Text>
+                )}
             </ScrollView>
         </View>
     );
